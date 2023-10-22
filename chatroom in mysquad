@@ -1,0 +1,59 @@
+//html
+Copy code
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="chatroom.css">
+</head>
+<body>
+    <h1>MySquad Chatroom</h1>
+    <div id="chat-container">
+        <div id="chat-messages"></div>
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button id="send-button">Send</button>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.0.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.1/firebase-database.js"></script>
+    <script src="chatroom.js"></script>
+</body>
+</html>
+And here's a simple JavaScript file (chatroom.js) to manage the chatroom functionality:
+
+//javascript
+
+
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+const messageInput = document.getElementById('message-input');
+const sendButton = document.getElementById('send-button');
+const chatMessages = document.getElementById('chat-messages');
+
+sendButton.addEventListener('click', () => {
+    const message = messageInput.value;
+    if (message.trim() !== '') {
+        // Push the message to the Firebase database
+        database.ref('chat').push({
+            text: message,
+            timestamp: Date.now()
+        });
+        messageInput.value = '';
+    }
+});
+
+// Listen for new messages and display them
+database.ref('chat').on('child_added', (snapshot) => {
+    const message = snapshot.val();
+    const messageElement = document.createElement('div');
+    messageElement.innerText = message.text;
+    chatMessages.appendChild(messageElement);
+});
